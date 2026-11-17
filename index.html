@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>:root{color-scheme:light}[hidden]{display:none!important}</style>
+<title>Maratona com a Vick</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600&display=swap">
+<style>
+/* Layout: bloco de sorteio em marrom frio no topo, filtros logo abaixo e cartões por seção (séries, animes). Rosa só nas ações e no progresso. */
+:root {
+  --bg: #e6dedf;
+  --surface: #f2ecec;
+  --surface-2: #e3d9da;
+  --fg: #2b2124;
+  --muted: #665a5d;
+  --line: #cdbfc1;
+  --accent: #c2336a;
+  --on-accent: #ffffff;
+  --accent-soft: #f1c9d8;
+  --on-accent-soft: #4a1a2c;
+  --hero: #3a2f33;
+  --hero-2: #4a3d42;
+  --hero-fg: #f5e9ed;
+  --hero-muted: #cbb9bf;
+  --hero-accent: #f4a1bd;
+  --on-hero-accent: #2c1720;
+  --f-display: 'Bricolage Grotesque', 'Avenir Next', 'Segoe UI', system-ui, sans-serif;
+  --f-body: 'Figtree', 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1f191b;
+    --surface: #2a2124;
+    --surface-2: #352b2f;
+    --fg: #f0e4e8;
+    --muted: #b9a8ae;
+    --line: #41363a;
+    --accent: #f4a1bd;
+    --on-accent: #2c1720;
+    --accent-soft: #4a2a37;
+    --on-accent-soft: #f6cddb;
+    --hero: #33292d;
+    --hero-2: #43363b;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1f191b;
+  --surface: #2a2124;
+  --surface-2: #352b2f;
+  --fg: #f0e4e8;
+  --muted: #b9a8ae;
+  --line: #41363a;
+  --accent: #f4a1bd;
+  --on-accent: #2c1720;
+  --accent-soft: #4a2a37;
+  --on-accent-soft: #f6cddb;
+  --hero: #33292d;
+  --hero-2: #43363b;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 16px/1.5 var(--f-body);
+  padding-block: clamp(16px, 4vw, 40px);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.hero :focus-visible { outline-color: var(--hero-accent); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.wrap { max-width: 68rem; margin-inline: auto; display: grid; gap: 1.75rem; }
+
+/* Hero */
+.hero {
+  background: var(--hero);
+  color: var(--hero-fg);
+  border-radius: 1.25rem;
+  padding: clamp(1.25rem, 4vw, 2.5rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: clamp(1.25rem, 3vw, 2.5rem);
+}
+@media (max-width: 46rem) { .hero { grid-template-columns: minmax(0, 1fr); } }
+.hero-copy { min-width: 0; display: flex; flex-direction: column; justify-content: space-between; gap: 1.5rem; }
+.eyebrow { font-size: .75rem; letter-spacing: .14em; text-transform: uppercase; color: var(--hero-accent); margin: 0 0 .75rem; font-weight: 600; }
+h1 {
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-size: clamp(2.2rem, 6vw, 3.6rem);
+  line-height: 1.02;
+  letter-spacing: -.02em;
+  margin: 0 0 1rem;
+  text-wrap: balance;
+}
+h1 em { font-style: normal; color: var(--hero-accent); }
+.lede { margin: 0; color: var(--hero-muted); max-width: 36ch; }
+.progress { display: grid; gap: .5rem; }
+.prog-row { display: flex; justify-content: space-between; flex-wrap: wrap; gap: .25rem 1rem; font-size: .875rem; color: var(--hero-muted); font-variant-numeric: tabular-nums; }
+.prog-row strong { color: var(--hero-fg); font-weight: 600; }
+.bar { height: .5rem; border-radius: 99px; background: var(--hero-2); overflow: hidden; }
+.bar i { display: block; height: 100%; width: 0; background: var(--hero-accent); border-radius: 99px; transition: width .4s ease; }
+
+/* Sorteio */
+.roulette { background: var(--hero-2); border-radius: 1rem; padding: 1.25rem; display: grid; gap: 1rem; align-content: start; min-width: 0; }
+.rl-label { margin: 0; font-size: .75rem; letter-spacing: .14em; text-transform: uppercase; color: var(--hero-muted); font-weight: 600; }
+.reel {
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: clamp(1.6rem, 4.5vw, 2.3rem);
+  line-height: 1.1;
+  min-height: 2.4em;
+  display: flex;
+  align-items: center;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+.reel.idle { color: var(--hero-muted); font-weight: 500; font-size: 1.25rem; }
+.reel.spinning { color: var(--hero-accent); }
+.pick { display: grid; gap: .6rem; }
+.pick-meta { margin: 0; font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; color: var(--hero-accent); font-weight: 600; }
+.pick-pitch { margin: 0; color: var(--hero-fg); }
+.actions { display: flex; flex-wrap: wrap; gap: .6rem; }
+.btn { border: 0; border-radius: .75rem; padding: .75rem 1.1rem; min-height: 44px; font-weight: 600; cursor: pointer; }
+.btn-primary { background: var(--hero-accent); color: var(--on-hero-accent); }
+.btn-primary:disabled { opacity: .6; cursor: default; }
+.btn-ghost { background: transparent; color: var(--hero-fg); border: 1px solid var(--hero-muted); }
+.btn:not(:disabled):hover { filter: brightness(1.06); }
+
+/* Filtros */
+.filters { display: grid; gap: .9rem; }
+.row { display: flex; flex-wrap: wrap; gap: .5rem .75rem; align-items: center; }
+.seg { display: inline-flex; background: var(--surface-2); border-radius: .85rem; padding: .2rem; }
+.seg button { border: 0; background: transparent; padding: .5rem 1rem; border-radius: .65rem; min-height: 40px; cursor: pointer; font-weight: 500; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); font-weight: 600; }
+.chips { display: flex; flex-wrap: wrap; gap: .4rem; }
+.chip { border: 1px solid var(--line); background: transparent; border-radius: 99px; padding: .3rem .85rem; font-size: .875rem; min-height: 36px; cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--accent-soft); color: var(--on-accent-soft); border-color: var(--accent); font-weight: 600; }
+.toggle { display: inline-flex; align-items: center; gap: .5rem; font-size: .9rem; color: var(--muted); cursor: pointer; min-height: 36px; }
+.toggle input { width: 1.1rem; height: 1.1rem; accent-color: var(--accent); }
+
+/* Lista */
+#list { display: grid; gap: 2.25rem; }
+.sec-head { display: flex; align-items: baseline; gap: .75rem; margin: 0 0 1rem; }
+.sec-head h2 { font-family: var(--f-display); font-size: 1.7rem; letter-spacing: -.01em; margin: 0; }
+.count { color: var(--muted); font-size: .9rem; font-variant-numeric: tabular-nums; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr)); gap: 1rem; list-style: none; padding: 0; margin: 0; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  padding: 1rem;
+  display: grid;
+  grid-template-rows: auto auto 1fr auto auto;
+  gap: .65rem;
+  min-width: 0;
+  transition: transform .15s ease;
+}
+.card:hover { transform: translateY(-2px); }
+.card.picked { outline: 2px solid var(--accent); outline-offset: 2px; }
+.card-top { display: flex; align-items: center; gap: .75rem; }
+.tile { width: 2.5rem; height: 2.5rem; border-radius: .6rem; display: grid; place-items: center; font-family: var(--f-display); font-weight: 800; font-size: 1.15rem; flex: none; }
+.tile.t0 { background: var(--hero); color: var(--hero-accent); }
+.tile.t1 { background: var(--accent-soft); color: var(--on-accent-soft); }
+.tile.t2 { background: var(--surface-2); color: var(--fg); }
+.kind { font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.card h3 { font-family: var(--f-display); font-size: 1.2rem; line-height: 1.2; margin: 0; text-wrap: balance; overflow-wrap: anywhere; }
+.pitch { margin: 0; color: var(--muted); font-size: .95rem; }
+.tags { display: flex; flex-wrap: wrap; gap: .35rem; }
+.tag { font-size: .75rem; padding: .15rem .6rem; border-radius: 99px; background: var(--surface-2); color: var(--muted); }
+.status { width: 100%; min-height: 44px; border: 1px solid var(--line); background: transparent; border-radius: .75rem; cursor: pointer; font-weight: 600; }
+.status[data-s="watching"] { border-color: var(--accent); color: var(--accent); }
+.status[data-s="done"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.card.done h3 { color: var(--muted); }
+.status:disabled { cursor: default; opacity: .7; }
+.sync { margin: 0; font-size: .8rem; color: var(--hero-muted); }
+.empty { text-align: center; color: var(--muted); padding: 2rem 0; margin: 0; }
+.foot { text-align: center; color: var(--muted); font-size: .85rem; margin: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+</style>
+
+</head>
+<body>
+<main class="wrap">
+  <header class="hero">
+    <div class="hero-copy">
+      <div>
+        <p class="eyebrow">Sessão a dois</p>
+        <h1>O que a gente assiste <em>hoje?</em></h1>
+        <p class="lede"><span id="total">34</span> títulos escolhidos pra ver e ler com a Vick. Sorteie o próximo ou filtre pelo clima da noite.</p>
+      </div>
+      <div class="progress" aria-label="Progresso">
+        <div class="prog-row"><span><strong id="doneN">0</strong> de <span id="totalB">34</span> vistos</span><span id="split"></span></div>
+        <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="barWrap"><i id="bar"></i></div>
+        <p class="sync" id="sync"></p>
+      </div>
+    </div>
+
+    <section class="roulette" aria-labelledby="rl">
+      <h2 class="rl-label" id="rl">Sorteio</h2>
+      <div class="reel idle" id="reel">Aperte o botão e deixe a sorte escolher.</div>
+      <div class="pick" id="pick" hidden>
+        <p class="pick-meta" id="pickMeta"></p>
+        <p class="pick-pitch" id="pickPitch"></p>
+        <div class="actions">
+          <button class="btn btn-ghost" id="pickGo" type="button">Ver na lista</button>
+          <button class="btn btn-primary" id="pickStart" type="button">Começar a ver</button>
+        </div>
+      </div>
+      <div class="actions"><button class="btn btn-primary" id="spin" type="button">Sortear</button></div>
+      <p class="sr" id="sr" aria-live="polite"></p>
+    </section>
+  </header>
+
+  <section class="filters" aria-label="Filtros">
+    <div class="row">
+      <div class="seg" role="group" aria-label="Tipo">
+        <button type="button" data-type="all" aria-pressed="true">Tudo</button>
+        <button type="button" data-type="serie" aria-pressed="false">Séries</button>
+        <button type="button" data-type="anime" aria-pressed="false">Animes</button>
+        <button type="button" data-type="manga" aria-pressed="false">Mangás</button>
+      </div>
+      <label class="toggle" for="hideDone"><input type="checkbox" id="hideDone"> Esconder os que já vimos</label>
+    </div>
+    <div class="chips" id="chips" role="group" aria-label="Gênero"></div>
+  </section>
+
+  <div id="list"></div>
+
+  <p class="foot">Toque no botão de cada cartão para marcar: na fila, assistindo ou vimos.</p>
+</main>
+
+<script>
+(function () {
+  var ITEMS = [
+    { id: 'mentalista', t: 'O Mentalista', k: 'serie', g: ['Mistério', 'Drama'], p: `Patrick Jane lê as pessoas como ninguém e ajuda a polícia da Califórnia a resolver crimes.` },
+    { id: 'reacher', t: 'Reacher', k: 'serie', g: ['Ação', 'Suspense'], p: `Ex-policial militar, forte e sem rumo, que sempre acaba no meio de uma conspiração.` },
+    { id: 'sandman', t: 'Sandman', k: 'serie', g: ['Fantasia', 'Drama'], p: `Sonho, o senhor dos sonhos, escapa de décadas de cativeiro e precisa reconstruir seu reino. Baseada na HQ de Neil Gaiman.` },
+    { id: 'witcher', t: 'The Witcher', k: 'serie', g: ['Fantasia', 'Ação'], p: `Geralt de Rívia caça monstros por dinheiro, mas o destino o liga a Ciri e Yennefer.` },
+    { id: 'stranger', t: 'Stranger Things', k: 'serie', g: ['Ficção', 'Suspense'], p: `Um menino some em Hawkins e a cidade descobre o Mundo Invertido. Muita nostalgia dos anos 80.` },
+    { id: 'arcane', t: 'Arcane', k: 'serie', g: ['Ação', 'Drama'], p: `Animação do universo de League of Legends sobre as irmãs Vi e Jinx, entre Piltover e Zaun.` },
+    { id: 'breaking', t: 'Breaking Bad', k: 'serie', g: ['Drama', 'Suspense'], p: `Um professor de química do ensino médio entra no mundo do crime e não consegue mais sair.` },
+    { id: 'casa', t: 'La Casa de Papel', k: 'serie', g: ['Suspense', 'Ação'], p: `O Professor reúne uma equipe para assaltar a Casa da Moeda da Espanha.` },
+    { id: 'suits', t: 'Suits', k: 'serie', g: ['Drama', 'Comédia'], p: `Mike Ross é um gênio sem diploma que trabalha como advogado ao lado de Harvey Specter.` },
+    { id: 'chosen', t: 'The Chosen', k: 'serie', g: ['Drama', 'Histórico'], p: `Série sobre a vida de Jesus e de quem andou com ele, contada de perto, pelos olhos das pessoas comuns.` },
+
+    { id: 'aot', t: 'Attack on Titan', k: 'anime', g: ['Ação', 'Drama'], p: `A humanidade vive atrás de muralhas para se proteger dos titãs, até o dia em que elas caem.` },
+    { id: 'horimiya', t: 'Horimiya', k: 'anime', g: ['Romance', 'Comédia'], p: `Dois colegas escondem um lado que ninguém na escola conhece e se aproximam por isso.` },
+    { id: 'frieren', t: 'Frieren', k: 'anime', g: ['Fantasia', 'Drama'], p: `Depois da morte do herói, a elfa Frieren sai em nova jornada para entender o tempo e as pessoas.` },
+    { id: 'parasyte', t: 'Parasyte', k: 'anime', g: ['Suspense', 'Ficção'], p: `Parasitas alienígenas tomam o corpo de humanos. Shinichi acaba dividindo a mão direita com um deles.` },
+    { id: 'spyxfamily', t: 'Spy x Family', k: 'anime', g: ['Comédia', 'Ação'], p: `Um espião, uma assassina e uma telepata fingem ser uma família comum, cada um escondendo o seu segredo.` },
+    { id: 'ansatsu', t: 'Assassination Classroom', k: 'anime', g: ['Comédia', 'Drama'], p: `Uma criatura que vai destruir a Terra vira professor, e a turma precisa tentar matá-lo.` },
+    { id: 'suzume', t: 'Suzume', k: 'anime', l: 'Anime · filme', g: ['Fantasia', 'Romance'], p: `Filme de Makoto Shinkai: uma garota viaja pelo Japão fechando portas que deixam escapar desastres.` },
+    { id: 'blueperiod', t: 'Blue Period', k: 'anime', g: ['Drama'], p: `Yatora descobre a pintura e decide encarar a prova para uma faculdade de artes.` },
+    { id: 'oshinoko', t: 'Oshi no Ko', k: 'anime', g: ['Drama', 'Mistério'], p: `Um fã renasce como filho da idol que ama e entra nos bastidores do showbiz japonês.` },
+    { id: 'apotecaria', t: 'Diários de uma Apotecária', k: 'anime', g: ['Mistério', 'Drama'], p: `Maomao usa seu conhecimento de venenos e remédios para resolver casos dentro do palácio imperial.` },
+    { id: 'hero-x', t: 'To Be Hero X', k: 'anime', g: ['Ação', 'Ficção'], p: `Num mundo onde heróis ganham poder conforme a confiança do público, a fama vale mais que a força.` },
+    { id: 'bsd', t: 'Bungou Stray Dogs', k: 'anime', g: ['Ação', 'Mistério'], p: `Uma agência de detetives com poderes inspirados em escritores famosos enfrenta casos e rivais.` },
+    { id: 'cote', t: 'Classroom of the Elite', k: 'anime', g: ['Suspense', 'Drama'], p: `Numa escola onde o mérito decide tudo, Ayanokouji esconde o quanto é capaz.` },
+    { id: 'kaguya', t: 'Kaguya-sama: Love Is War', k: 'anime', g: ['Romance', 'Comédia'], p: `Dois gênios do conselho estudantil travam uma guerra de egos para ver quem se declara primeiro.` },
+    { id: 'lycoris', t: 'Lycoris Recoil', k: 'anime', g: ['Ação', 'Comédia'], p: `Chisato e Takina são agentes secretas que tocam uma cafeteria nas horas vagas.` },
+    { id: 'yourlie', t: 'Your Lie in April', k: 'anime', g: ['Romance', 'Drama'], p: `Um pianista que perdeu o som da própria música conhece uma violinista cheia de vida.` },
+    { id: 'wistoria', t: 'Wistoria: Wand and Sword', k: 'anime', g: ['Fantasia', 'Ação'], p: `Will não consegue usar magia, mas entra na academia dos magos empunhando uma espada.` },
+    { id: 'detective', t: 'The Detective Is Already Dead', k: 'anime', g: ['Mistério', 'Comédia'], p: `Um garoto que atrai problemas cruza o caminho da detetive Siesta, que já começa morta. Mistério com humor e ação.` },
+
+    { id: 'vagabond', t: 'Vagabond', k: 'manga', l: 'Mangá', g: ['Ação', 'Drama', 'Histórico'], p: `Takehiko Inoue conta a jornada de Miyamoto Musashi, do jovem violento ao espadachim em busca de sentido.` },
+    { id: 'worldafter', t: 'The World After the End', k: 'manga', l: 'Mangá · coreano', g: ['Ação', 'Fantasia'], p: `Manhwa de ação e fantasia num mundo que já passou pelo colapso, com monstros e sobreviventes.` },
+    { id: 'eleceed', t: 'Eleceed', k: 'manga', l: 'Mangá · coreano', g: ['Ação', 'Comédia'], p: `Jiwoo é um garoto de bom coração com reflexos incríveis. Ele conhece Kayden, um gato que não é um gato comum.` },
+    { id: 'northernblade', t: 'A Lenda da Lâmina do Norte', k: 'manga', l: 'Mangá · coreano', g: ['Ação', 'Fantasia'], p: `Wuxia coreano sobre Jin Mu-Won, herdeiro de um clã de espadachins que precisa reerguer o que foi destruído.` },
+    { id: 'fencing', t: 'Gênio da Esgrima da Academia', k: 'manga', l: 'Mangá · coreano', g: ['Ação', 'Fantasia'], p: `Um talento nato da espada entra na academia e mira o topo do mundo da esgrima.` },
+    { id: 'tbate', t: 'O Começo Depois do Fim', k: 'manga', l: 'Mangá · coreano', g: ['Fantasia', 'Ação'], p: `Um rei poderoso renasce num mundo de magia e ganha uma segunda chance de viver a vida que não teve.` }
+  ];
+
+  var KIND = { serie: 'Série', anime: 'Anime', manga: 'Mangá' };
+  var SECTION = { serie: 'Séries', anime: 'Animes', manga: 'Mangás' };
+  var LABEL = { queue: 'Na fila', watching: 'Assistindo', done: 'Vimos' };
+  var ORDER = ['queue', 'watching', 'done'];
+  var KEY = 'maratona-vick-v1';
+
+  var BASE = {};  /* progresso publicado: 'id-do-titulo': 'done' ou 'watching' */
+  var saved = {};
+  try { saved = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { saved = {}; }
+  Object.keys(BASE).forEach(function (k) { saved[k] = BASE[k]; });
+  var store = null, canWrite = true;
+  function st(id) { return ORDER.indexOf(saved[id]) >= 0 ? saved[id] : 'queue'; }
+  function persist() { if (store) return; try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {} }
+  function setSync(msg) { var el = document.getElementById('sync'); if (el) el.textContent = msg; }
+  function syncNote() {
+    setSync(!store ? 'Progresso publicado pelo dono da página. O que você marcar aqui fica só neste aparelho.' :
+      (canWrite ? 'Progresso compartilhado: quem abre a página vê as mesmas marcações.' :
+        'Somente leitura. Peça acesso de colaborador ao dono da página para marcar.'));
+  }
+
+  /* Progresso compartilhado: um documento por título em "status" */
+  var inflight = {}, queued = {};
+  function applySnap(snap) {
+    var m = {};
+    snap.docs.forEach(function (d) {
+      var v = d.data();
+      if (v && ORDER.indexOf(v.s) >= 0) m[d.id] = v.s;
+    });
+    saved = m;
+    if (pickId && byId(pickId)) showPick(byId(pickId));
+    renderList();
+    renderProgress();
+  }
+  function writeRemote(id, next) {
+    if (inflight[id]) { queued[id] = next; return; }
+    inflight[id] = true;
+    store.collection('status').doc(id).set({ s: next }).then(function () {
+      inflight[id] = false;
+      if (queued[id]) { var q = queued[id]; delete queued[id]; writeRemote(id, q); }
+    }, function () {
+      inflight[id] = false;
+      delete queued[id];
+      canWrite = false;
+      store.collection('status').get().then(applySnap, function () {});
+      setSync('Não foi possível salvar. É preciso acesso de colaborador na página compartilhada.');
+    });
+  }
+  function setStatus(id, next) {
+    saved[id] = next;
+    if (store) writeRemote(id, next); else persist();
+  }
+  function connect() {
+    syncNote();
+    if (!window.claude || !window.claude.use) return;
+    Promise.all([window.claude.use('db'), window.claude.use('user')]).then(function (r) {
+      var db = r[0], user = r[1];
+      if (!db) return;
+      store = db;
+      saved = {};
+      setSync('Conectando ao progresso compartilhado…');
+      var timer = setTimeout(function () { setSync('Sem resposta do progresso compartilhado. O que aparece pode estar desatualizado.'); }, 10000);
+      var cw = null;
+      try { cw = user && user.can ? user.can('data.write') : null; } catch (e) { cw = null; }
+      if (cw === false) canWrite = false;
+      db.collection('status').onSnapshot(function (snap) {
+        if (!snap.metadata.fromCache) { clearTimeout(timer); if (canWrite || cw === false) syncNote(); }
+        applySnap(snap);
+      }, function () {
+        clearTimeout(timer);
+        setSync('Não foi possível ler o progresso compartilhado.');
+      });
+      renderList();
+      renderProgress();
+    }).catch(function () {});
+  }
+
+  var type = 'all', genre = null, hideDone = false, pickId = null, busy = false;
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function $(s) { return document.querySelector(s); }
+  var listEl = $('#list'), chipsEl = $('#chips'), reel = $('#reel'), pickBox = $('#pick');
+  var spinBtn = $('#spin'), pickStart = $('#pickStart'), srEl = $('#sr');
+
+  function matches(i) {
+    return (type === 'all' || i.k === type) && (!genre || i.g.indexOf(genre) >= 0) && !(hideDone && st(i.id) === 'done');
+  }
+  function initial(title) {
+    var c = title.replace(/^(the|o|a|la)\s+/i, '');
+    return c.charAt(0).toUpperCase();
+  }
+  function byId(id) { return ITEMS.filter(function (i) { return i.id === id; })[0]; }
+
+  function renderChips() {
+    var set = {};
+    ITEMS.forEach(function (i) { i.g.forEach(function (g) { set[g] = 1; }); });
+    var gs = Object.keys(set).sort(function (a, b) { return a.localeCompare(b, 'pt'); });
+    chipsEl.innerHTML = gs.map(function (g) {
+      return '<button type="button" class="chip" data-genre="' + g + '" aria-pressed="' + (genre === g) + '">' + g + '</button>';
+    }).join('');
+  }
+
+  function cardHtml(i, n) {
+    var s = st(i.id);
+    return '<li class="card' + (s === 'done' ? ' done' : '') + (pickId === i.id ? ' picked' : '') + '" data-card="' + i.id + '">' +
+      '<div class="card-top"><span class="tile t' + (n % 3) + '" aria-hidden="true">' + initial(i.t) + '</span><span class="kind">' + (i.l || KIND[i.k]) + '</span></div>' +
+      '<h3>' + i.t + '</h3>' +
+      '<p class="pitch">' + i.p + '</p>' +
+      '<div class="tags">' + i.g.map(function (g) { return '<span class="tag">' + g + '</span>'; }).join('') + '</div>' +
+      '<button type="button" class="status" data-id="' + i.id + '" data-s="' + s + '"' + (canWrite ? '' : ' disabled') + ' aria-label="' + i.t + ': ' + LABEL[s] + '. Tocar para mudar.">' + LABEL[s] + (s === 'done' ? ' ✓' : '') + '</button>' +
+      '</li>';
+  }
+
+  function renderList() {
+    var kinds = type === 'all' ? ['serie', 'anime', 'manga'] : [type];
+    var html = '';
+    kinds.forEach(function (k) {
+      var items = ITEMS.filter(function (i) { return i.k === k && matches(i); });
+      if (!items.length) return;
+      html += '<section aria-labelledby="h-' + k + '"><div class="sec-head"><h2 id="h-' + k + '">' + SECTION[k] + '</h2><span class="count">' + items.length + (items.length === 1 ? ' título' : ' títulos') + '</span></div><ul class="cards">' +
+        items.map(cardHtml).join('') + '</ul></section>';
+    });
+    listEl.innerHTML = html || '<p class="empty">Nada por aqui com esses filtros. Tire um gênero ou mostre os que já vimos.</p>';
+  }
+
+  function renderProgress() {
+    var total = ITEMS.length;
+    var done = ITEMS.filter(function (i) { return st(i.id) === 'done'; });
+    function cnt(list, k) { return list.filter(function (i) { return i.k === k; }).length; }
+    var pct = Math.round(done.length / total * 100);
+    $('#total').textContent = total;
+    $('#totalB').textContent = total;
+    $('#doneN').textContent = done.length;
+    $('#split').textContent = 'Séries ' + cnt(done, 'serie') + '/' + cnt(ITEMS, 'serie') + '  ·  Animes ' + cnt(done, 'anime') + '/' + cnt(ITEMS, 'anime') + '  ·  Mangás ' + cnt(done, 'manga') + '/' + cnt(ITEMS, 'manga');
+    $('#bar').style.width = pct + '%';
+    $('#barWrap').setAttribute('aria-valuenow', pct);
+  }
+
+  function renderAll() { renderChips(); renderList(); renderProgress(); }
+
+  function showPick(item) {
+    pickId = item.id;
+    $('#pickMeta').textContent = (item.l || KIND[item.k]) + '  ·  ' + item.g.join(', ');
+    $('#pickPitch').textContent = item.p;
+    var s = st(item.id);
+    pickStart.disabled = s !== 'queue' || !canWrite;
+    pickStart.textContent = s === 'queue' ? 'Começar a ver' : (s === 'watching' ? 'Já está assistindo' : 'Já vimos');
+    pickBox.hidden = false;
+  }
+
+  function finish(item) {
+    busy = false;
+    spinBtn.disabled = false;
+    spinBtn.textContent = 'Sortear de novo';
+    reel.classList.remove('spinning', 'idle');
+    reel.textContent = item.t;
+    showPick(item);
+    srEl.textContent = 'Sorteado: ' + item.t;
+    renderList();
+  }
+
+  function spin() {
+    if (busy) return;
+    var pool = ITEMS.filter(function (i) { return matches(i) && st(i.id) !== 'done'; });
+    pickId = null;
+    pickBox.hidden = true;
+    if (!pool.length) {
+      reel.classList.add('idle');
+      reel.classList.remove('spinning');
+      reel.textContent = 'Nada na fila com esses filtros.';
+      renderList();
+      return;
+    }
+    var final = pool[Math.floor(Math.random() * pool.length)];
+    if (reduce || pool.length === 1) { finish(final); return; }
+    busy = true;
+    spinBtn.disabled = true;
+    reel.classList.remove('idle');
+    reel.classList.add('spinning');
+    var step = 0, steps = 16;
+    (function tick() {
+      if (step >= steps) { finish(final); return; }
+      var r = pool[Math.floor(Math.random() * pool.length)];
+      reel.textContent = r.t;
+      step++;
+      setTimeout(tick, 60 + step * step * 1.6);
+    })();
+  }
+
+  /* Eventos */
+  spinBtn.addEventListener('click', spin);
+
+  pickStart.addEventListener('click', function () {
+    if (!pickId) return;
+    if (!canWrite) return;
+    setStatus(pickId, 'watching');
+    showPick(byId(pickId));
+    renderList();
+    renderProgress();
+  });
+
+  $('#pickGo').addEventListener('click', function () {
+    if (!pickId) return;
+    var el = document.querySelector('[data-card="' + pickId + '"]');
+    if (el) el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+  });
+
+  document.querySelector('.seg').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-type]');
+    if (!b) return;
+    type = b.getAttribute('data-type');
+    document.querySelectorAll('.seg button').forEach(function (x) {
+      x.setAttribute('aria-pressed', x === b ? 'true' : 'false');
+    });
+    renderList();
+  });
+
+  chipsEl.addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-genre]');
+    if (!b) return;
+    var g = b.getAttribute('data-genre');
+    genre = genre === g ? null : g;
+    renderChips();
+    renderList();
+  });
+
+  $('#hideDone').addEventListener('change', function (e) {
+    hideDone = e.target.checked;
+    renderList();
+  });
+
+  listEl.addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-id]');
+    if (!b) return;
+    var id = b.getAttribute('data-id');
+    if (!canWrite) return;
+    var next = ORDER[(ORDER.indexOf(st(id)) + 1) % ORDER.length];
+    setStatus(id, next);
+    if (pickId === id) showPick(byId(id));
+    renderList();
+    renderProgress();
+    var again = document.querySelector('button[data-id="' + id + '"]');
+    if (again) again.focus();
+  });
+
+  renderAll();
+  connect();
+})();
+</script>
+</body>
+</html>
