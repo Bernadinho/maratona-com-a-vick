@@ -289,75 +289,14 @@ h1 em { font-style: normal; color: var(--hero-accent); }
   var ORDER = ['queue', 'watching', 'done'];
   var KEY = 'maratona-vick-v1';
 
-  var BASE = {};  /* progresso publicado: 'id-do-titulo': 'done' ou 'watching' */
   var saved = {};
-  try { saved = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { saved = {}; }
-  Object.keys(BASE).forEach(function (k) { saved[k] = BASE[k]; });
+  try { saved = JSON.parse(localStorage.getItem('maratona-vick-v1') || '{}') || {}; } catch (e) { saved = {}; }
   var store = null, canWrite = true;
   function st(id) { return ORDER.indexOf(saved[id]) >= 0 ? saved[id] : 'queue'; }
-  function persist() { if (store) return; try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {} }
+  function persist() { try { localStorage.setItem('maratona-vick-v1', JSON.stringify(saved)); } catch (e) {} }
   function setSync(msg) { var el = document.getElementById('sync'); if (el) el.textContent = msg; }
-  function syncNote() {
-    setSync(!store ? 'Progresso publicado pelo dono da página. O que você marcar aqui fica só neste aparelho.' :
-      (canWrite ? 'Progresso compartilhado: quem abre a página vê as mesmas marcações.' :
-        'Somente leitura. Peça acesso de colaborador ao dono da página para marcar.'));
-  }
-
-  /* Progresso compartilhado: um documento por título em "status" */
-  var inflight = {}, queued = {};
-  function applySnap(snap) {
-    var m = {};
-    snap.docs.forEach(function (d) {
-      var v = d.data();
-      if (v && ORDER.indexOf(v.s) >= 0) m[d.id] = v.s;
-    });
-    saved = m;
-    if (pickId && byId(pickId)) showPick(byId(pickId));
-    renderList();
-    renderProgress();
-  }
-  function writeRemote(id, next) {
-    if (inflight[id]) { queued[id] = next; return; }
-    inflight[id] = true;
-    store.collection('status').doc(id).set({ s: next }).then(function () {
-      inflight[id] = false;
-      if (queued[id]) { var q = queued[id]; delete queued[id]; writeRemote(id, q); }
-    }, function () {
-      inflight[id] = false;
-      delete queued[id];
-      canWrite = false;
-      store.collection('status').get().then(applySnap, function () {});
-      setSync('Não foi possível salvar. É preciso acesso de colaborador na página compartilhada.');
-    });
-  }
-  function setStatus(id, next) {
-    saved[id] = next;
-    if (store) writeRemote(id, next); else persist();
-  }
-  function connect() {
-    syncNote();
-    if (!window.claude || !window.claude.use) return;
-    Promise.all([window.claude.use('db'), window.claude.use('user')]).then(function (r) {
-      var db = r[0], user = r[1];
-      if (!db) return;
-      store = db;
-      saved = {};
-      setSync('Conectando ao progresso compartilhado…');
-      var timer = setTimeout(function () { setSync('Sem resposta do progresso compartilhado. O que aparece pode estar desatualizado.'); }, 10000);
-      var cw = null;
-      try { cw = user && user.can ? user.can('data.write') : null; } catch (e) { cw = null; }
-      if (cw === false) canWrite = false;
-      db.collection('status').onSnapshot(function (snap) {
-        if (!snap.metadata.fromCache) { clearTimeout(timer); if (canWrite || cw === false) syncNote(); }
-        applySnap(snap);
-      }, function () {
-        clearTimeout(timer);
-        setSync('Não foi possível ler o progresso compartilhado.');
-      });
-      renderList();
-      renderProgress();
-    }).catch(function () {});
-  }
+  function syncNote() { setSync('Suas marcações ficam salvas apenas neste navegador.'); }
+  function setStatus(id, next) { saved[id] = next; persist(); }
 
   var type = 'all', genre = null, hideDone = false, pickId = null, busy = false;
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -528,7 +467,7 @@ h1 em { font-style: normal; color: var(--hero-accent); }
   });
 
   renderAll();
-  connect();
+  syncNote();
 })();
 </script>
 </body>
